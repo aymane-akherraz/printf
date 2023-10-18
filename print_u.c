@@ -1,24 +1,14 @@
 #include "main.h"
 /**
- * pt_int - Prints an integer
+ * pt_unsigned - Prints an unsigned integer
  * @a: the given integer
  * @len: the given length
  *
  * Return: number of digits printed
 */
-int pt_int(va_list a, int len)
+int pt_unsigned(va_list a, int len)
 {
-	unsigned int n;
-	int n2 = va_arg(a, int);
-
-	if (n2 < 0)
-	{
-		_putchar('-');
-		n = -n2;
-		len++;
-	}
-	else
-		n = n2;
+	unsigned int n = va_arg(a, unsigned int);
 
 	if ((n / 10) == 0)
 	{

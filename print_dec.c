@@ -26,6 +26,6 @@ int pt_dec(va_list a, int len)
 		return (++len);
 	}
 
-	len = divide(n, len);
+	len = divide(n, len, 10);
 	return (len);
 }
