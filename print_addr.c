@@ -10,7 +10,7 @@ int pt_addr(va_list a, int len)
 {
 	int i;
 	char *s = "(nil)";
-	long p = (long) va_arg(a, void *);
+	unsigned long p = (unsigned long) va_arg(a, void *);
 
 	if (p == 0)
 	{
@@ -38,7 +38,7 @@ int pt_addr(va_list a, int len)
  * Return: number of digits printed
 */
 
-int c_hex(long n, int l)
+int c_hex(unsigned long n, int l)
 {
 	unsigned int m = 0;
 	int i;

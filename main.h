@@ -43,7 +43,7 @@ int pt_HEX(va_list a, int len);
 int pt_unsigned(va_list a, int len);
 int pt_STR(va_list a, int len);
 int pt_addr(va_list a, int len);
-int c_hex(long n, int len);
+int c_hex(unsigned long n, int len);
 int pt_rev(va_list a, int len);
 int pt_rot13(va_list a, int len);
 

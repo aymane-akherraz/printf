@@ -24,18 +24,20 @@ int pt_STR(va_list a, int len)
 				if (s[i] < 16)
 				{
 					_putchar('0');
-					len++;
 					if (s[i] < 10)
 						_putchar('0' + s[i]);
 					else
 						hex_chars(s[i]);
+					len += 2;
 				}
 				else
 					len = div_hex(s[i], len, 'X');
 			}
 			else
+			{
 				_putchar(s[i]);
-			len++;
+				len++;
+			}
 		}
 	}
 	else

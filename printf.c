@@ -1,7 +1,7 @@
 #include "main.h"
 
 int handle_flags(const char *format, int *i, int l, va_list args);
-int handle_per(const char *s, int *i, int l, print_f(*p)[], va_list a);
+int handle_per(const char *s, int *i, int l, print_f(*p)[]);
 /**
  * _printf - Produces output according to a format
  * @format: a character string
@@ -13,6 +13,7 @@ int _printf(const char *format, ...)
 {
 	va_list args, cp;
 	int i, j, l = 0, r = 0, b = 0;
+	char c;
 
 	print_f fts[] = {
 		{"c", pt_char}, {"s", pt_str}, {"d", pt_dec}, {"i", pt_int}, {"b", pt_bin},
@@ -20,8 +21,7 @@ int _printf(const char *format, ...)
 		{"S", pt_STR}, {"p", pt_addr}, {"r", pt_rev}, {"R", pt_rot13},
 		{NULL, NULL}
 	};
-	print_f(*myPointer)[] = &fts;
-
+	print_f(*myPtr)[] = &fts;
 	if (format == NULL || (*format == '%' && *(format + 1) == '\0'))
 		return (-1);
 
@@ -33,11 +33,13 @@ int _printf(const char *format, ...)
 		{
 			_putchar(format[i]);
 			l++;
+
 		}
 		for (j = 0; fts[j].fs != NULL; j++)
 		{
 			if (format[i] == '%')
 			{
+				b = 1;
 				if (format[i + 1] == '+' || format[i + 1] == ' ' || format[i + 1] == '#')
 				{
 					va_copy(cp, args);
@@ -45,22 +47,22 @@ int _printf(const char *format, ...)
 					if (l == -1)
 						return (-1);
 				}
-
 				if (fts[j + 1].fs == NULL)
 				{
-					r = handle_per(format, &i, l, myPointer, args);
+					r = handle_per(format, &i, l, myPtr);
 					if (r == -1)
 						return (-1);
 					l = r;
 				}
-				b = 1;
 			}
-			if (b == 1)
+			c = format[i];
+			if (c == '%' || (b == 1 && (c == '+' || c == ' ' || c == '#')))
 			{
 				if (format[i + 1] == *(fts[j].fs))
 				{
 					l = fts[j].f(args, l);
 					i++;
+					b = 0;
 					break;
 				}
 			}
@@ -110,6 +112,14 @@ int handle_flags(const char *format, int *i, int l, va_list args)
 				}
 				(*i)++;
 			}
+			if (format[k + 1] == '%')
+			{
+				_putchar('%');
+				_putchar(format[k + 2]);
+				(*i) += 2;
+				l += 2;
+				return (l);
+			}
 		}
 		if (format[j] == '\0')
 			return (-1);
@@ -117,9 +127,8 @@ int handle_flags(const char *format, int *i, int l, va_list args)
 	if (format[k] == '#')
 	{
 		if (format[j] == 'u' || format[j] == 'i' || format[j] == 'd')
-		{
 			(*i)++;
-		}
+
 		if (format[j] == 'o' || format[j] == 'x' || format[j] == 'X')
 		{
 			if (n != 0)
@@ -148,38 +157,36 @@ int handle_flags(const char *format, int *i, int l, va_list args)
  * @i: a pointer to the index i in the previous function
  * @l: the previous length
  * @p: a pointer to fts, the array of structures in _printf
- * @a: an argument pointer variable of type va_list
  * Return: the resulted length otherwise -1
 */
-int handle_per(const char *s, int *i, int l, print_f(*p)[], va_list a)
+int handle_per(const char *s, int *i, int l, print_f(*p)[])
 {
-	int j = *i + 1, b = 0;
+	int j = *i + 1, k, b = 0;
 
-	while (s[j] != '\0')
-	{
-		if (s[j + 1] == '\0')
-			return (-1);
-
-		if (s[j] != ' ')
-		{
-			b = 1;
-			break;
-		}
+	while (s[j] == ' ')
 		j++;
-	}
-	if (b == 1 && s[j] == 's' && s[j + 1] == '\0')
-	{
-		l = (*p)[1].f(a, l);
-		*i = j;
-		return (l);
-	}
 
-	if (s[*i + 1] != '\0')
+	if (s[j] != '\0')
 	{
-		if (s[*i + 1] == '%')
+		for (k = 0; (*p)[k].fs != NULL; k++)
 		{
-			(*i)++;
+			if (s[j] == *(*p)[k].fs)
+			{
+				b = 1;
+				break;
+			}
+		}
+
+		if (s[j] != '%' && b == 0)
+		{
 			_putchar(s[*i]);
+			l++;
+		}
+
+		if (s[j] == '%')
+		{
+			_putchar(s[j]);
+			(*i)++;
 			l++;
 		}
 		return (l);
