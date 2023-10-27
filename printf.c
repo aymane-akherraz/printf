@@ -1,18 +1,21 @@
 #include "main.h"
 
 int handle_flags(const char *format, int *i, int l, va_list args);
+int handle_width(const char *format, int i, int l, va_list args);
 int handle_per(const char *s, int *i, int l, print_f(*p)[]);
+int handle_len(const char *format, int *i, int l, va_list args);
 /**
  * _printf - Produces output according to a format
  * @format: a character string
  *
- * Return: the number of characters printed
+ * Return: the nber of characters printed
  * (excluding the null byte used to end output to strings)
 */
 int _printf(const char *format, ...)
 {
-	va_list args, cp;
-	int i, j, l = 0, r = 0, b = 0;
+	va_list args, cp, cp2;
+	int i, j, l = 0, r = 0, b = 0, b2 = 0, k;
+	char t[] = {'+', ' ', '#', '6', '*', '\0'};
 	char c;
 
 	print_f fts[] = {
@@ -47,6 +50,21 @@ int _printf(const char *format, ...)
 					if (l == -1)
 						return (-1);
 				}
+				if (format[i + 1] == '6' || format[i + 1] == '*')
+				{
+					if (format[i + 1] == '*')
+						va_arg(args, int);
+
+					va_copy(cp2, args);
+					l = handle_width(format, (i + 2), l, cp2);
+					i++;
+				}
+				if (format[i + 1] == 'l' || format[i + 1] == 'h')
+				{
+					i++;
+					l = handle_len(format, &i, l, args);
+					b = 0;
+				}
 				if (fts[j + 1].fs == NULL)
 				{
 					r = handle_per(format, &i, l, myPtr);
@@ -56,13 +74,20 @@ int _printf(const char *format, ...)
 				}
 			}
 			c = format[i];
-			if (c == '%' || (b == 1 && (c == '+' || c == ' ' || c == '#')))
+			for (k = 0; t[k] != '\0'; k++)
+			{
+				if (c == t[k])
+					b2 = 1;
+			}
+
+			if (c == '%' || (b == 1 && b2 == 1))
 			{
 				if (format[i + 1] == *(fts[j].fs))
 				{
 					l = fts[j].f(args, l);
 					i++;
 					b = 0;
+					b2 = 0;
 					break;
 				}
 			}
@@ -149,6 +174,114 @@ int handle_flags(const char *format, int *i, int l, va_list args)
 			(*i)++;
 		}
 	}
+	return (l);
+}
+/**
+ * handle_width - Handles left padding
+ * @format: the given format string
+ * @i: an integer
+ * @l: the previous length
+ * @args: an argument pointer variable of type va_list
+ * Return: the resulted length
+*/
+int handle_width(const char *format, int i, int l, va_list args)
+{
+	int len = 0, n, s = 0, j;
+	char *str;
+
+	if (format[i] == 'c')
+	{
+		for (j = 0; j < 5; j++)
+		{
+			_putchar(' ');
+			l++;
+		}
+		return (l);
+	}
+	if (format[i] == 's')
+	{
+		str = va_arg(args, char *);
+
+		for (j = 0; str[j] != '\0'; j++)
+			len++;
+		if (len < 6)
+		{
+			s = 6 - len;
+			for (j = 0; j < s; j++)
+			{
+				_putchar(' ');
+				l++;
+			}
+		}
+		return (l);
+	}
+	n = va_arg(args, int);
+	if (n < 0)
+	{
+		n = -n;
+		len++;
+	}
+	do {
+		n /= 10;
+		len++;
+	} while (n != 0);
+
+	if (len < 6)
+	{
+		s = 6 - len;
+		for (j = 0; j < s; j++)
+		{
+			_putchar(' ');
+			l++;
+		}
+	}
+	return (l);
+}
+/**
+ * handle_len - Handles the length of numbers
+ * @format: the given format string
+ * @i: a pointer to the index i in the previous function
+ * @l: the previous length
+ * @args: an argument pointer variable of type va_list
+ * Return: the resulted length otherwise -1
+*/
+int handle_len(const char *format, int *i, int l, va_list args)
+{
+	switch (format[*i + 1])
+	{
+	case 'd':
+	case 'i':
+		if (format[*i] == 'l')
+			l = pt_l_int(args, l);
+		else
+			l = pt_s_int(args, l);
+		break;
+	case 'u':
+		if (format[*i] == 'l')
+			l = pt_unsigned_long(args, l);
+		else
+			l = pt_unsigned_short(args, l);
+		break;
+	case 'o':
+		if (format[*i] == 'l')
+			l = pt_l_oct(args, l);
+		else
+			l = pt_s_oct(args, l);
+		break;
+	case 'x':
+	case 'X':
+		if (format[*i] == 'l')
+			l = pt_l_hex(args, l, format[*i + 1]);
+		else
+			l = pt_s_hex(args, l, format[*i + 1]);
+		break;
+	default:
+		_putchar('%');
+		l++;
+		(*i)--;
+		break;
+	}
+	(*i)++;
 	return (l);
 }
 /**
