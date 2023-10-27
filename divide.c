@@ -60,3 +60,39 @@ int div_hex(unsigned int n, unsigned int l, char c)
 	l++;
 	return (l);
 }
+/**
+ * divide_l - Divides long numbers by the given base
+ * until the Quotient equals 0
+ * then print it to the screen
+ * @n: the given number
+ * @l: the given length
+ * @b: the given base
+ * Return: number of digits printed
+*/
+int divide_l(unsigned long n, unsigned int l, int b)
+{
+	if ((n / b) != 0)
+		l =	divide_l((n / b), l, b);
+
+	_putchar('0' + (n % b));
+	l++;
+	return (l);
+}
+/**
+ * divide_s - Divides short numbers by the given base
+ * until the Quotient equals 0
+ * then print it to the screen
+ * @n: the given number
+ * @l: the given length
+ * @b: the given base
+ * Return: number of digits printed
+*/
+int divide_s(unsigned short n, unsigned int l, int b)
+{
+	if ((n / b) != 0)
+		l =	divide_s((n / b), l, b);
+
+	_putchar('0' + (n % b));
+	l++;
+	return (l);
+}
